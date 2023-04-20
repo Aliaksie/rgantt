@@ -61,7 +61,7 @@ impl Component for Gantt {
                 }
             })
             .min()
-            .unwrap_or( Utc::now().naive_utc());
+            .unwrap_or(Utc::now().naive_utc());
         let end_dates: NaiveDateTime = props
             .tasks
             .clone()
@@ -76,7 +76,7 @@ impl Component for Gantt {
                 }
             })
             .max()
-            .unwrap_or( Utc::now().naive_utc());
+            .unwrap_or(Utc::now().naive_utc());
         let view_mode = props
             .display_option
             .view_mode
@@ -242,28 +242,30 @@ fn bar_task(
     let end = NaiveDateTime::parse_from_str(&task.end.clone().unwrap(), &fmt).unwrap();
     let x_1 = task_x_coordinate(start, dates_.clone(), column_width);
     let x_2 = task_x_coordinate(end, dates_.clone(), column_width);
+    let childrens: Vec<BarTask> = task
+        .dependencies
+        .clone()
+        .unwrap_or(vec![])
+        .iter()
+        .filter_map(|id| tasks.iter().find(|el| &el.id.clone().unwrap() == id))
+        .map(|it| {
+            bar_task(
+                tasks.clone(),
+                it,
+                fmt.clone(),
+                dates_,
+                column_width,
+                props,
+                task_height,
+                i, // todo!
+                row_height,
+            )
+        })
+        .collect();
+
     BarTask {
         // todo!!
-        bar_children: Some(
-            tasks
-                .iter()
-                .enumerate()
-                .filter(|(_, it)| it.project.clone().unwrap() == task.id.clone().unwrap())
-                .map(|(i, it)| {
-                    bar_task(
-                        tasks.clone(),
-                        it,
-                        fmt.clone(),
-                        dates_,
-                        column_width,
-                        props,
-                        task_height,
-                        i,
-                        row_height,
-                    )
-                })
-                .collect(),
-        ), // todo
+        bar_children: Some(childrens),
         bar_corner_radius: Some(props.style_option.bar_corner_radius.unwrap_or(3.0)),
         handle_width: Some(props.style_option.handle_width.unwrap_or(8.0)),
         height: Some(task_height),
@@ -309,7 +311,16 @@ fn bar_task(
 }
 
 fn task_x_coordinate(x_date: NaiveDateTime, dates: Vec<NaiveDateTime>, column_width: f64) -> f64 {
-    let index = dates.iter().position(|it| it >= &x_date).unwrap();
+    log::debug!("x - {} dates {:?}", x_date, dates);
+
+    let index = dates
+        .iter()
+        .position(|it| {
+            log::debug!("left - {} right {:?}", it.timestamp(), x_date.timestamp());
+            it.timestamp() >= x_date.timestamp()
+        })
+        .unwrap()
+        - 1;
 
     let remainder = x_date.timestamp_nanos() - dates[index].timestamp_nanos();
     let percent = remainder / (dates[index + 1].timestamp_nanos() - dates[index].timestamp_nanos());
@@ -318,21 +329,11 @@ fn task_x_coordinate(x_date: NaiveDateTime, dates: Vec<NaiveDateTime>, column_wi
 }
 
 fn seed_dates(start: NaiveDateTime, end: NaiveDateTime, mode: ViewMode) -> Vec<NaiveDateTime> {
-    let mut current = start;
+    let mut current = mode.get_mod_date(start, false);
     let mut dates: Vec<NaiveDateTime> = Vec::new();
     dates.push(current);
-    while current < end {
-        let to_push = match mode {
-            ViewMode::Day => current.checked_add_days(chrono::Days::new(1)),
-            ViewMode::HalfDay => todo!(),
-            ViewMode::Hour => todo!(),
-            ViewMode::Month => current.checked_add_months(chrono::Months::new(1)),
-            ViewMode::QuarterDay => todo!(),
-            ViewMode::QuarterYear => todo!(),
-            ViewMode::Week => todo!(),
-            ViewMode::Year => todo!(),
-        };
-        current = to_push.unwrap();
+    while current < mode.get_mod_date(end, true) {
+        current = mode.get_mod_date(current, true);
         dates.push(current);
     }
 

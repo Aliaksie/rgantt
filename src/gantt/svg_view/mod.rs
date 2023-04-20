@@ -78,7 +78,75 @@ impl ViewMode {
 impl TaskTypeInternal {
     fn get_task_item(&self, task: BarTask) -> Html {
         match self {
-            TaskTypeInternal::Task => todo!(),
+            TaskTypeInternal::Task => {
+                let progress_x = task.progress_x.unwrap() + task.progress_width.unwrap();
+                let task_y = task.y.unwrap();
+                let task_height = task.height.unwrap();
+                let  point = [progress_x - 5.0, task_y + task_height, progress_x + 5.0, task_y + task_height, progress_x, task_y + task_height - 8.66,].iter()
+                    .map(|it| it.to_string())
+                    .collect::<Vec<String>>()
+                    .join(",");
+
+                html!{
+                    <g class="bar-wrapper" tabIndex={0}>
+                        <g /* TODO: onMouseDown={onMouseDown}*/>
+                            <rect
+                                x={task.x_1.unwrap().to_string()}
+                                width={(task.x_2.unwrap() - task.x_1.unwrap()).to_string()}
+                                y={task.y.unwrap().to_string()}
+                                height={task.height.unwrap().to_string()}
+                                ry={task.bar_corner_radius.unwrap().to_string()}
+                                rx={task.bar_corner_radius.unwrap().to_string()}
+                                fill={task.styles.clone().unwrap().background_color.unwrap()} // todo! isSelected
+                                class="bar-back-ground"
+                            />
+                            <rect
+                                x={task.progress_x.unwrap().to_string()}
+                                width={task.progress_width.unwrap().to_string()}
+                                y={task.y.unwrap().to_string()}
+                                height={task.height.unwrap().to_string()}
+                                ry={task.bar_corner_radius.unwrap().to_string()}
+                                rx={task.bar_corner_radius.unwrap().to_string()}
+                                fill={task.styles.clone().unwrap().progress_color.unwrap()} // todo! isSelected
+                            />
+                        </g>
+                        <g class="handle-group">
+                            // TODO! if isDateChangeable
+                             <g>
+                                /* left */
+                                <rect
+                                    x={(task.x_1.unwrap() + 1.0).to_string()}
+                                    y={(task.y.unwrap() + 1.0).to_string()}
+                                    width={task.handle_width.unwrap().to_string()}
+                                    height={task.height.unwrap().to_string()}
+                                    class="bar-handle"
+                                    ry={task.bar_corner_radius.unwrap().to_string()}
+                                    rx={task.bar_corner_radius.unwrap().to_string()}
+                                    // TODO! onMouseDown={onMouseDown}
+                                 />
+                                /* right */
+                                 <rect
+                                    x={(task.x_2.unwrap() - task.handle_width.unwrap() - 1.0).to_string()}
+                                    y={(task.y.unwrap() + 1.0).to_string()}
+                                    width={task.handle_width.unwrap().to_string()}
+                                    height={task.height.unwrap().to_string()}
+                                    class="bar-handle"
+                                    ry={task.bar_corner_radius.unwrap().to_string()}
+                                    rx={task.bar_corner_radius.unwrap().to_string()}
+                                    // TODO! onMouseDown={onMouseDown}
+                                 />
+                            </g>
+                    
+                            // TODO! if isProgressChangeable
+                            <polygon
+                                 class="bar-handle"
+                                 points={point}
+                                // TODO! onMouseDown={onMouseDown}
+                            />            
+                        </g>
+                    </g>
+                }
+            },
             TaskTypeInternal::Project => {
                 // TODO: isSelcted
                 let mut styles = task.styles.clone().unwrap();
@@ -123,52 +191,71 @@ impl TaskTypeInternal {
                 .collect::<Vec<String>>()
                 .join(",");
 
-                let node = html! {
-                                        <g tabIndex={0} class="project-wrapper">
-                                            <rect
-                                                fill={bar_color.clone()}
-                                                x={task.x_1.unwrap().to_string()}
-                                                width={project_with.to_string()}
-                                                y={task.y.unwrap().to_string()}
-                                                height={task.height.unwrap().to_string()}
-                                                rx={task.bar_corner_radius.unwrap().to_string()}
-                                                ry={task.bar_corner_radius.unwrap().to_string()}
-                                                class="project-background"
-                                            />
-                                            <rect
-                                                x={task.progress_x.unwrap().to_string()}
-                                                width={task.progress_width.unwrap().to_string()}
-                                                y={task.y.unwrap().to_string()}
-                                                height={task.height.unwrap().to_string()}
-                                                ry={task.bar_corner_radius.unwrap().to_string()}
-                                                rx={task.bar_corner_radius.unwrap().to_string()}
-                                                fill={process_color}
-                                            />
-                                            <rect
-                                                fill={bar_color.clone()}
-                                                x={task.x_1.unwrap().to_string()}
-                                                width={project_with.to_string()}
-                                                y={task.y.unwrap().to_string()}
-                                                height={(task.height.unwrap() / 2.0).to_string()}
-                                                rx={task.bar_corner_radius.unwrap().to_string()}
-                                                ry={task.bar_corner_radius.unwrap().to_string()}
-                                                class="project-top"
-                                            />
-                                            <polygon
-                                                class="project-top"
-                                                points={project_left_triangle}
-                                                fill={bar_color.clone()}
-                                            />
-                                            <polygon
-                                                class="project-top"
-                                                points={project_right_triangle}
-                                                fill={bar_color.clone()}
-                                            />
-                                        </g>
+                let node = 
+                html! {
+                    <g tabIndex={0} class="project-wrapper">
+                        <rect
+                            fill={bar_color.clone()} // todo! isSelected
+                            x={task.x_1.unwrap().to_string()}
+                            width={project_with.to_string()}
+                            y={task.y.unwrap().to_string()}
+                            height={task.height.unwrap().to_string()}
+                            rx={task.bar_corner_radius.unwrap().to_string()}
+                            ry={task.bar_corner_radius.unwrap().to_string()}
+                            class="project-background"
+                        />
+                        <rect
+                            x={task.progress_x.unwrap().to_string()}
+                            width={task.progress_width.unwrap().to_string()}
+                            y={task.y.unwrap().to_string()}
+                            height={task.height.unwrap().to_string()}
+                            ry={task.bar_corner_radius.unwrap().to_string()}
+                            rx={task.bar_corner_radius.unwrap().to_string()}
+                            fill={process_color} // todo! isSelected
+                        />
+                        <rect
+                            fill={bar_color.clone()}
+                            x={task.x_1.unwrap().to_string()}
+                            width={project_with.to_string()}
+                            y={task.y.unwrap().to_string()}
+                            height={(task.height.unwrap() / 2.0).to_string()}
+                            rx={task.bar_corner_radius.unwrap().to_string()}
+                            ry={task.bar_corner_radius.unwrap().to_string()}
+                            class="project-top"
+                        />
+                        <polygon
+                            class="project-top"
+                            points={project_left_triangle}
+                            fill={bar_color.clone()} // todo! isSelected
+                        />
+                        <polygon
+                            class="project-top"
+                            points={project_right_triangle}
+                            fill={bar_color.clone()} // todo! isSelected
+                        />
+                    </g>
                 };
                 node
             }
-            TaskTypeInternal::Milestone => todo!(),
+            TaskTypeInternal::Milestone => {
+                let transform = format!("rotate(45 {} {})", task.x_1.unwrap() + task.height.unwrap() * 0.356, task.y.unwrap() + task.height.unwrap() * 0.85);
+                html!{
+                    <g tabIndex={0} class="milestone-wrapper">
+                        <rect
+                            fill={task.styles.clone().unwrap().background_color.unwrap()} // todo! isSelected
+                            x={task.x_1.unwrap().to_string()}
+                            width={task.height.unwrap().to_string()}
+                            y={task.y.unwrap().to_string()}
+                            height={task.height.unwrap().to_string()}
+                            rx={task.bar_corner_radius.unwrap().to_string()}
+                            ry={task.bar_corner_radius.unwrap().to_string()}
+                            transform={transform}
+                            class="milestone-background"
+                            //TODO:  onMouseDown=
+                        />
+                  </g>
+                }
+            },
             TaskTypeInternal::Smalltask => todo!(),
         }
     }

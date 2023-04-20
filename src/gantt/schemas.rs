@@ -509,6 +509,21 @@ pub enum ViewMode {
     Year,
 }
 
+impl ViewMode {
+    pub fn get_mod_date(&self, date_time: NaiveDateTime, add: bool) -> NaiveDateTime {
+        match self {
+            ViewMode::Day => if add { date_time.checked_add_days(chrono::Days::new(1)) } else { date_time.checked_sub_days(chrono::Days::new(1))},
+            ViewMode::HalfDay => todo!(),
+            ViewMode::Hour => todo!(),
+            ViewMode::Month =>if add { date_time.checked_add_months(chrono::Months::new(1)) } else { date_time.checked_sub_months(chrono::Months::new(1))} ,
+            ViewMode::QuarterDay => todo!(),
+            ViewMode::QuarterYear => todo!(),
+            ViewMode::Week => todo!(),
+            ViewMode::Year => todo!(),
+        }.unwrap()
+    }
+}
+
 #[derive(Default, Clone, PartialEq, Properties)]
 pub struct GridProps {
     pub tasks: Vec<super::schemas::Task>,
