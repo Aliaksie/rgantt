@@ -27,7 +27,7 @@ impl ViewMode {
                             (6 + (i as i32) - date.year()) * (props.column_width as i32)
                         };
                         html! {
-                                <g class="calendar-top">
+                            <g class="calendar-top">
                                 <line
                                     x1={(props.column_width * (i as f64)).to_string()}
                                     y1={0}
@@ -54,17 +54,17 @@ impl ViewMode {
                     .enumerate()
                     .map(|(i, date)| {
                         // todo: customize!
-                        let display_date = date.format("%A, %-d %B, %C%y");
+                    let display_date = date.format("%m");
                     html! {
-                            <text
-                              key={format!("{}{}", display_date, date.year())}
-                              y={(props.header_height * 0.8).to_string()}
-                              x={(props.column_width * (i as f64) + props.column_width * 0.5).to_string()}
-                              class="calendar-bottom-text"
-                            >
-                              {format!("{}", display_date)}
-                            </text>
-                        }
+                        <text
+                            key={format!("{}{}", display_date, date.year())}
+                            y={(props.header_height * 0.8).to_string()}
+                            x={(props.column_width * (i as f64) + props.column_width * 0.5).to_string()}
+                            class="calendar-bottom-text"
+                        >
+                            {format!("{}", display_date)}
+                        </text>
+                    }
                     }).collect();
 
                 (bottom, top)
@@ -491,17 +491,18 @@ impl Component for SvgView {
                     xmlns="http://www.w3.org/2000/svg"
                     width={self.grid_props.svg_width.to_string()}
                     height={self.calendar_props.header_height.to_string()}
-                    fontFamily={self.bar_props.font_family.clone()}
+                    font-family={self.bar_props.font_family.clone()}
                     >
-                    <g class="calendar" fontSize={self.calendar_props.font_size.clone()} fontFamily={self.calendar_props.font_family.clone()}>
+                    <g class="calendar" font-size={self.calendar_props.font_size.clone()} font-family={self.calendar_props.font_family.clone()}>
                         <rect
-                        x={0}
-                        y={0}
-                        width={(self.calendar_props.column_width * (self.calendar_props.date_setup.dates.clone().unwrap().len() as f64)).to_string()}
-                        height={self.calendar_props.header_height.to_string()}
-                        class="calendar-header"
+                            x={0}
+                            y={0}
+                            width={(self.calendar_props.column_width * (self.calendar_props.date_setup.dates.clone().unwrap().len() as f64)).to_string()}
+                            height={self.calendar_props.header_height.to_string()}
+                            class="calendar-header"
                         />
-                        {cal_values.0} {cal_values.1}
+                        {cal_values.0} 
+                        {cal_values.1}
                     </g>
                 </svg>
 
@@ -517,7 +518,7 @@ impl Component for SvgView {
                         xmlns="http://www.w3.org/2000/svg"
                         width={self.grid_props.svg_width.to_string()}
                         height={(self.bar_props.row_height * (self.bar_props.tasks.len() as f64)).to_string()}
-                        fontFamily={self.bar_props.font_family.to_string()}
+                        font-family={self.bar_props.font_family.to_string()}
                         ref={self.gantt_svg_ref.clone()}
                     >
                         <g class="grid">
@@ -530,7 +531,7 @@ impl Component for SvgView {
                         </g>
                         <g class="content">
                             <g class="arrows" fill={self.bar_props.arrow_color.clone()} stroke={self.bar_props.arrow_color.clone()}>{arrow_tasks}</g>
-                            <g class="bar" fontFamily={self.bar_props.font_family.clone()} fontSize={self.bar_props.font_size.clone()}>{bar_tasks}</g>
+                            <g class="bar" font-family={self.bar_props.font_family.clone()} font-size={self.bar_props.font_size.clone()}>{bar_tasks}</g>
                         </g>
                     </svg>
                 </div>
