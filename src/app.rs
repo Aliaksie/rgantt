@@ -1,6 +1,6 @@
 use yew::{html, Component, Context, Html};
 
-use crate::gantt::{self, schemas::{_GridProps::tasks, Task}};
+use crate::gantt::{self, schemas::Task};
 
 pub struct App {}
 

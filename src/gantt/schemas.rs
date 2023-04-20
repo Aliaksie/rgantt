@@ -4,7 +4,7 @@ use yew::Properties;
 
 use super::macros;
 
-#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
 pub enum BarMoveAction {
     #[serde(rename = "end")]
     End,
@@ -15,7 +15,7 @@ pub enum BarMoveAction {
     #[serde(rename = "start")]
     Start,
 }
-#[derive(Clone, PartialEq, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Default, Deserialize, Serialize)]
 pub struct BarTaskStyles {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "backgroundColor")]
@@ -67,7 +67,7 @@ pub struct BarTask {
     #[serde(flatten)]
     pub task: Task,
 }
-#[derive(Clone, PartialEq, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Default, Deserialize, Serialize)]
 pub struct DateSetup {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dates: Option<Vec<NaiveDateTime>>,
@@ -128,10 +128,10 @@ pub struct EventOption {
     #[serde(rename = "timeStep")]
     pub time_step: Option<f64>,
 }
-#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
 pub enum GanttContentMoveAction {
     #[serde(rename = "")]
-    empty_,
+    Empty,
     #[serde(rename = "click")]
     Click,
     #[serde(rename = "dblclick")]
@@ -416,7 +416,7 @@ pub struct StylingOption {
     #[serde(rename = "todayColor")]
     pub today_color: Option<String>,
 }
-#[derive(Clone, PartialEq, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Default, Deserialize, Serialize)]
 pub struct TaskStyles {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "backgroundColor")]
@@ -463,7 +463,7 @@ pub struct Task {
     #[serde(rename = "type")]
     pub type_: Option<TaskType>,
 }
-#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize)]
 pub enum TaskType {
     #[serde(rename = "milestone")]
     Milestone,
@@ -481,7 +481,7 @@ impl TaskType {
         }
     }
 }
-#[derive(Clone, PartialEq, Debug, Deserialize, Serialize, Default)]
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize, Default)]
 pub enum TaskTypeInternal {
     #[serde(rename = "milestone")]
     Milestone,
@@ -494,7 +494,7 @@ pub enum TaskTypeInternal {
     Task,
 }
 pub type ValidationMapAny = ::std::collections::BTreeMap<String, serde_json::Value>;
-#[derive(Clone, PartialEq, Debug, Deserialize, Serialize, Default)]
+#[derive(Clone, PartialEq, Eq, Debug, Deserialize, Serialize, Default)]
 pub enum ViewMode {
     Day,
     #[serde(rename = "Half Day")]

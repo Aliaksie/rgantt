@@ -32,25 +32,23 @@ impl Component for Gantt {
             .display_option
             .locale
             .clone()
-            .unwrap_or("%Y-%m-%d %H:%M:%S".to_owned());
+            .unwrap_or_else(|| "%Y-%m-%d %H:%M:%S".to_owned());
         let column_width = props.style_option.column_width.unwrap_or(30.0);
         let row_height = props.style_option.row_height.unwrap_or(50.0);
-        let font_family = props.style_option.font_family.clone().unwrap_or(
-            "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue"
-                .to_owned(),
-        );
+        let font_family = props.style_option.font_family.clone().unwrap_or_else(|| "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue"
+                .to_owned());
         let font_size = props
             .style_option
             .font_size
             .clone()
-            .unwrap_or("14px".to_owned());
+            .unwrap_or_else(|| "14px".to_owned());
         let header_height = props.style_option.header_height.unwrap_or(50.0);
         let bar_fill = props.style_option.bar_fill.unwrap_or(60.0);
         let task_height = (row_height * bar_fill) / 100.0;
         let start_dates: NaiveDateTime = props
             .tasks
             .clone()
-            .unwrap_or(vec![])
+            .unwrap_or_default()
             .iter()
             .filter_map(|it| it.start.clone())
             .filter_map(|it| match NaiveDateTime::parse_from_str(&it, &fmt) {
@@ -61,11 +59,11 @@ impl Component for Gantt {
                 }
             })
             .min()
-            .unwrap_or(Utc::now().naive_utc());
+            .unwrap_or_else(|| Utc::now().naive_utc());
         let end_dates: NaiveDateTime = props
             .tasks
             .clone()
-            .unwrap_or(vec![])
+            .unwrap_or_default()
             .iter()
             .filter_map(|it| it.end.clone())
             .filter_map(|it| match NaiveDateTime::parse_from_str(&it, &fmt) {
@@ -76,12 +74,12 @@ impl Component for Gantt {
                 }
             })
             .max()
-            .unwrap_or(Utc::now().naive_utc());
+            .unwrap_or_else(|| Utc::now().naive_utc());
         let view_mode = props
             .display_option
             .view_mode
             .clone()
-            .unwrap_or(ViewMode::Month);
+            .unwrap_or_default();
         // todo: ?
         let dates_: Vec<NaiveDateTime> = seed_dates(start_dates, end_dates, view_mode.clone());
 
@@ -92,7 +90,7 @@ impl Component for Gantt {
 
         let grid_props_ = schemas::GridProps::default()
             .tasks(props.tasks.clone().unwrap())
-            .row_height(props.style_option.row_height.clone().unwrap_or(50.0))
+            .row_height(props.style_option.row_height.unwrap_or(50.0))
             .column_width(column_width)
             .dates(date_setup.dates.clone().unwrap())
             .rtl(false)
@@ -102,7 +100,7 @@ impl Component for Gantt {
                     .style_option
                     .today_color
                     .clone()
-                    .unwrap_or("rgba(252, 248, 227, 0.5)".to_owned()),
+                    .unwrap_or_else(|| "rgba(252, 248, 227, 0.5)".to_owned())
             );
 
         let calendar_props_ = schemas::CalendarProps::default()
@@ -118,7 +116,7 @@ impl Component for Gantt {
         let bar_tasks: Vec<BarTask> = props
             .tasks
             .clone()
-            .unwrap_or(vec![])
+            .unwrap_or_default()
             .iter()
             .enumerate()
             .map(|(i, it)| {
@@ -141,7 +139,7 @@ impl Component for Gantt {
             .gantt_event(schemas::GanttEvent::default())
             .selected_task(schemas::BarTask::default()) // todo!
             .row_height(row_height)
-            .time_step(props.event_option.time_step.clone().unwrap_or(300000.0))
+            .time_step(props.event_option.time_step.unwrap_or(300000.0))
             .svg(yew::NodeRef::default()) // todo!
             .svg_width((dates_.len() as f64) * column_width)
             .task_height(task_height)
@@ -150,7 +148,7 @@ impl Component for Gantt {
                     .style_option
                     .arrow_color
                     .clone()
-                    .unwrap_or("grey".to_owned()),
+                    .unwrap_or_else(|| "grey".to_owned()),
             )
             .arrow_indent(props.style_option.arrow_indent.unwrap_or(20.0))
             .column_width(column_width)
@@ -237,7 +235,6 @@ fn bar_task(
     row_height: f64,
 ) -> BarTask {
     let t = task.clone();
-    let fmt = fmt.clone();
     let start = NaiveDateTime::parse_from_str(&task.start.clone().unwrap(), &fmt).unwrap();
     let end = NaiveDateTime::parse_from_str(&task.end.clone().unwrap(), &fmt).unwrap();
     let x_1 = task_x_coordinate(start, dates_.clone(), column_width);
@@ -245,7 +242,7 @@ fn bar_task(
     let childrens: Vec<BarTask> = task
         .dependencies
         .clone()
-        .unwrap_or(vec![])
+        .unwrap_or_default()
         .iter()
         .filter_map(|id| tasks.iter().find(|el| &el.id.clone().unwrap() == id))
         .map(|it| {
@@ -278,28 +275,28 @@ fn bar_task(
                     .style_option
                     .bar_background_color
                     .clone()
-                    .unwrap_or("#b8c2cc".to_owned()),
+                    .unwrap_or_else(|| "#b8c2cc".to_owned()),
             ),
             background_selected_color: Some(
                 props
                     .style_option
                     .bar_background_selected_color
                     .clone()
-                    .unwrap_or("#aeb8c2".to_owned()),
+                    .unwrap_or_else(|| "#aeb8c2".to_owned()),
             ),
             progress_color: Some(
                 props
                     .style_option
                     .bar_progress_color
                     .clone()
-                    .unwrap_or("#a3a3ff".to_owned()),
+                    .unwrap_or_else(|| "#a3a3ff".to_owned()),
             ),
             progress_selected_color: Some(
                 props
                     .style_option
                     .bar_progress_selected_color
                     .clone()
-                    .unwrap_or("#8282f5".to_owned()),
+                    .unwrap_or_else(|| "#8282f5".to_owned()),
             ),
         }),
         type_internal: Some(task.type_.clone().unwrap().get_internal()),

@@ -284,9 +284,9 @@ impl Component for SvgView {
             grid_props: ctx.props().grid_props.clone(),
             calendar_props: ctx.props().calendar_props.clone(), 
             bar_props: ctx.props().bar_props.clone(), 
-            gantt_height:ctx.props().gantt_height.clone(), 
-            scroll_y: ctx.props().scroll_y.clone(), 
-            scroll_x: ctx.props().scroll_x.clone(), 
+            gantt_height:ctx.props().gantt_height, 
+            scroll_y: ctx.props().scroll_y, 
+            scroll_x: ctx.props().scroll_x, 
 
             vertical_gantt_container_ref: yew::NodeRef::default(), 
             horizontal_container_ref: yew::NodeRef::default(), 
