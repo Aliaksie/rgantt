@@ -90,7 +90,7 @@ pub struct DisplayOption {
     pub view_date: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "viewMode")]
-    pub view_mode: Option<String>,
+    pub view_mode: Option<ViewMode>,
 }
 #[derive(Clone, PartialEq, Debug, Default, Deserialize, Serialize)]
 pub struct EventOption {
@@ -472,6 +472,15 @@ pub enum TaskType {
     #[serde(rename = "task")]
     Task,
 }
+impl TaskType {
+    pub fn get_internal(&self) -> TaskTypeInternal {
+        match self {
+            TaskType::Milestone => TaskTypeInternal::Milestone,
+            TaskType::Project => TaskTypeInternal::Project,
+            TaskType::Task => TaskTypeInternal::Task,
+        }
+    }
+}
 #[derive(Clone, PartialEq, Debug, Deserialize, Serialize, Default)]
 pub enum TaskTypeInternal {
     #[serde(rename = "milestone")]
@@ -551,12 +560,12 @@ impl CalendarProps {
 #[derive(Default, Clone, PartialEq)]
 pub struct TaskGanttContentProps {
     pub tasks: Vec<BarTask>,
-    pub dates: Vec<chrono::NaiveDate>,
+    pub dates: Vec<chrono::NaiveDateTime>,
     pub gantt_event: GanttEvent,
     pub selected_task: BarTask,
     pub row_height: f64,
     pub time_step: f64,
-    pub svg: String, // todo; RefNode
+    pub svg: yew::NodeRef,
     pub svg_width: f64,
     pub task_height: f64,
     pub arrow_color: String,
@@ -570,12 +579,12 @@ pub struct TaskGanttContentProps {
 impl TaskGanttContentProps {
     macros::setters! {
         tasks: Vec<BarTask> => tasks,
-        dates: Vec<chrono::NaiveDate> => dates,
+        dates: Vec<chrono::NaiveDateTime> => dates,
         gantt_event: GanttEvent => gantt_event,
         selected_task: BarTask => selected_task,
         row_height: f64 => row_height,
         time_step: f64 => time_step,
-        svg: String => svg,
+        svg: yew::NodeRef => svg,
         svg_width: f64 => svg_width,
         task_height: f64 => task_height,
         arrow_color: String => arrow_color,
@@ -592,7 +601,7 @@ pub struct SvgProps {
     pub grid_props: GridProps,
     pub calendar_props: CalendarProps,
     pub bar_props: TaskGanttContentProps,
-    pub gantt_height: f32,
-    pub scroll_y: f32,
-    pub scroll_x: f32,
+    pub gantt_height: f64,
+    pub scroll_y: f64,
+    pub scroll_x: f64,
 }

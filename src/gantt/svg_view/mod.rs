@@ -179,9 +179,9 @@ pub struct SvgView {
     grid_props: GridProps,
     calendar_props: CalendarProps,
     bar_props: TaskGanttContentProps,
-    gantt_height: f32,
-    scroll_y: f32,
-    scroll_x: f32,
+    gantt_height: f64,
+    scroll_y: f64,
+    scroll_x: f64,
 
     vertical_gantt_container_ref: yew::NodeRef,
     horizontal_container_ref: yew::NodeRef,
@@ -192,8 +192,19 @@ impl Component for SvgView {
     type Message = ();
     type Properties = SvgProps;
 
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self::default()
+    fn create(ctx: &Context<Self>) -> Self {
+        Self { 
+            grid_props: ctx.props().grid_props.clone(),
+            calendar_props: ctx.props().calendar_props.clone(), 
+            bar_props: ctx.props().bar_props.clone(), 
+            gantt_height:ctx.props().gantt_height.clone(), 
+            scroll_y: ctx.props().scroll_y.clone(), 
+            scroll_x: ctx.props().scroll_x.clone(), 
+
+            vertical_gantt_container_ref: yew::NodeRef::default(), 
+            horizontal_container_ref: yew::NodeRef::default(), 
+            gantt_svg_ref: yew::NodeRef::default()
+        }
     }
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
