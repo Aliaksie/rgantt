@@ -314,7 +314,7 @@ impl Component for SvgView {
                         y={y.to_string()}
                         width={grid_props.svg_width.to_string()}
                         height={grid_props.row_height.to_string()}
-                        class="grid_row"
+                        class="grid-row"
                   />
                 };
                 y += grid_props.row_height;
@@ -493,7 +493,7 @@ impl Component for SvgView {
                     height={self.calendar_props.header_height.to_string()}
                     fontFamily={self.bar_props.font_family.clone()}
                     >
-                    <g className="calendar" fontSize={self.calendar_props.font_size.clone()} fontFamily={self.calendar_props.font_family.clone()}>
+                    <g class="calendar" fontSize={self.calendar_props.font_size.clone()} fontFamily={self.calendar_props.font_family.clone()}>
                         <rect
                         x={0}
                         y={0}
