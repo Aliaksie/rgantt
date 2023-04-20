@@ -22,9 +22,9 @@ impl ViewMode {
                     .map(|(i, date)| {
                         let value = date.year();
                         let x_text = if props.rtl {
-                            (6 + (i as i32) + date.year() + 1) * (props.column_width as i32)
+                            (6.0 + (i as f64) + (date.month() as f64) + 1.0) * props.column_width
                         } else {
-                            (6 + (i as i32) - date.year()) * (props.column_width as i32)
+                            (6.0 + (i as f64) - (date.month() as f64)) * props.column_width
                         };
                         html! {
                             <g class="calendar-top">
