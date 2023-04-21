@@ -1,4 +1,4 @@
-use chrono::{Datelike, NaiveDateTime, Utc};
+use chrono::{Datelike, NaiveDateTime, Utc, NaiveDate, Timelike};
 use yew::{html, Component, Context, Html};
 
 use super::schemas::{
@@ -8,69 +8,257 @@ use super::schemas::{
 impl ViewMode {
     fn get_values(&self, props: CalendarProps) -> (Html, Html) {
         match self {
-            ViewMode::Hour => todo!(),
-            ViewMode::QuarterDay => todo!(),
-            ViewMode::HalfDay => todo!(),
-            ViewMode::Day => todo!(),
-            ViewMode::Week => todo!(),
-            ViewMode::Month => {
-                let dates = props.date_setup.dates.unwrap();
+            ViewMode::Hour => {
+                let dates = props.date_setup.dates.clone().unwrap();
+                let height = props.header_height * 0.5;
                 let top: Html = dates
                     .iter()
                     .enumerate()
-                    .filter(|(i, date)| *i == 0 || date.year() != dates.get(i - 1).unwrap().year())
+                    .filter(|(i, date)| *i != 0 && date.date() != dates.get(i - 1).unwrap().date())
                     .map(|(i, date)| {
-                        let value = date.year();
-                        let x_text = if props.rtl {
-                            (6.0 + (i as f64) + (date.month() as f64) + 1.0) * props.column_width
-                        } else {
-                            (6.0 + (i as f64) - (date.month() as f64)) * props.column_width
-                        };
-                        html! {
-                            <g class="calendar-top">
-                                <line
-                                    x1={(props.column_width * (i as f64)).to_string()}
-                                    y1={0}
-                                    x2={(props.column_width * (i as f64)).to_string()}
-                                    y2={(props.header_height * 0.5).to_string()}
-                                    class="calendar-top-tick"
-                                    key={format!("{}line", props.column_width)}
-                                />
-                                <text
-                                    key={format!("{}text", value)}
-                                    y={(props.header_height * 0.5 * 0.9).to_string()}
-                                    x={x_text.to_string()}
-                                    class="calendar-top-text"
-                                >
-                                    {value}
-                                </text>
-                            </g>
-                        }
+                        let i = i as f64;
+                        // todo: customize ?
+                        let value = format!("{}, {}", date.iso_week().week(), date.format("%d %m"));
+                        let top_position = ((date.hour() - 24) / 2) as f64;
+                        let x_text = props.column_width * (i + top_position);
+                        let x_line = props.column_width * i;
+                        top_calendar(&props, x_line, height, x_text, value)
                     })
                     .collect();
 
                 let bottom: Html = dates
                     .iter()
                     .enumerate()
-                    .map(|(i, date)| {
-                        // todo: customize!
-                    let display_date = date.format("%m");
-                    html! {
-                        <text
-                            key={format!("{}{}", display_date, date.year())}
-                            y={(props.header_height * 0.8).to_string()}
-                            x={(props.column_width * (i as f64) + props.column_width * 0.5).to_string()}
-                            class="calendar-bottom-text"
-                        >
-                            {format!("{}", display_date)}
-                        </text>
-                    }
+                    .map(|(i, date)| { 
+                        // todo: customize ?                    
+                        let value = format!("{}", date.format("%H"));
+                        let key = format!("{}", date.timestamp());
+                        bottom_calendar(&props, i as f64, value, key)
                     }).collect();
 
                 (bottom, top)
-            }
-            ViewMode::QuarterYear => todo!(),
-            ViewMode::Year => todo!(),
+            },
+            ViewMode::QuarterDay => {
+                let dates = props.date_setup.dates.clone().unwrap();
+                let height = props.header_height * 0.5;
+                let top: Html = dates
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, date)| *i != 0 && date.date() != dates.get(i - 1).unwrap().date())
+                    .map(|(i, date)| {
+                        let i = i as f64;
+                        // todo: customize ?
+                        let value = format!("{}, {}", date.iso_week().week(), date.format("%d %m"));
+                        let x_text = props.column_width * i + 4.0 * props.column_width * 0.5;
+                        let x_line = props.column_width * i + 4.0 * props.column_width;
+                        top_calendar(&props, x_line, height, x_text, value)
+                    })
+                    .collect();
+
+                let bottom: Html = dates
+                    .iter()
+                    .enumerate()
+                    .map(|(i, date)| { 
+                        // todo: customize ?                    
+                        let value = format!("{}", date.format("%H"));
+                        let key = format!("{}", date.timestamp());
+                        bottom_calendar(&props, i as f64, value, key)
+                    }).collect();
+
+                (bottom, top)
+            },
+            ViewMode::HalfDay => {
+                let dates = props.date_setup.dates.clone().unwrap();
+                let height = props.header_height * 0.5;
+                let top: Html = dates
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, date)| *i != 0 && date.date() != dates.get(i - 1).unwrap().date())
+                    .map(|(i, date)| {
+                        let i = i as f64;
+                        // todo: customize ?
+                        let value = format!("{}, {}", date.iso_week().week(), date.format("%d %m"));
+                        let x_text = props.column_width * i + 2.0 * props.column_width * 0.5;
+                        let x_line = props.column_width * i + 2.0 * props.column_width;
+                        top_calendar(&props, x_line, height, x_text, value)
+                    })
+                    .collect();
+
+                let bottom: Html = dates
+                    .iter()
+                    .enumerate()
+                    .map(|(i, date)| { 
+                        // todo: customize ?                    
+                        let value = format!("{}", date.format("%H"));
+                        let key = format!("{}", date.timestamp());
+                        bottom_calendar(&props, i as f64, value, key)
+                    }).collect();
+
+                (bottom, top)
+            },
+            ViewMode::Day => {
+                let dates = props.date_setup.dates.clone().unwrap();
+                let height = props.header_height * 0.5;
+                let top: Html = dates
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, date)| i + 1 != dates.len() && date.month() != dates.get(i + 1).unwrap().month())
+                    .map(|(i, date)| {
+                        let i = i as f64;
+                        // todo: customize ?
+                        let value = format!("{}", date.format("%m"));
+                        let year = if date.month() == 12 { date.year() + 1 } else { date.year() };
+                        let date_num = NaiveDate::from_ymd_opt(year, date.month() + 1, 1).unwrap()
+                            .signed_duration_since(NaiveDate::from_ymd_opt(year, date.month(), 1).unwrap()).num_days() as f64;
+
+                        let x_text = props.column_width * (i + 1.0) - date_num * props.column_width * 0.5;
+                        let x_line = props.column_width * (i + 1.0);
+                        top_calendar(&props, x_line, height, x_text, value)
+                    })
+                    .collect();
+
+                let bottom: Html = dates
+                    .iter()
+                    .enumerate()
+                    .map(|(i, date)| { 
+                        // todo: customize ?                    
+                        let value = format!("{}", date.format("%d"));
+                        let key = format!("{}", date.timestamp());
+                        bottom_calendar(&props, i as f64, value, key)
+                    }).collect();
+
+                (bottom, top)
+            },
+            ViewMode::Week => {
+                let dates = props.date_setup.dates.clone().unwrap();
+                let height = props.header_height * 0.5;
+                let mut week_count = 0.0; // todo ?
+                let top: Html = dates
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, date)| *i == 0 || date.month() != dates.get(i - 1).unwrap().month())
+                    .map(|(i, date)| {
+                        let i = i as f64;
+                        // todo: customize ?
+                        let value = format!("{}", date.format("%Y"));
+                        let x_text = props.column_width * i + week_count * props.column_width;
+                        let x_line = props.column_width * i + week_count * props.column_width * 0.5;
+                        week_count = 0.0;
+                        top_calendar(&props, x_line, height, x_text, value)
+                    })
+                    .collect();
+
+                let bottom: Html = dates
+                    .iter()
+                    .enumerate()
+                    .map(|(i, date)| { 
+                        // todo: customize ?                    
+                        let value = format!("W{}", date.iso_week().week());
+                        let key = format!("{}", date.format("%m, %Y"));
+                        bottom_calendar(&props, i as f64, value, key)
+                    }).collect();
+
+                (bottom, top)
+            },
+            ViewMode::Month => {
+                let dates = props.date_setup.dates.clone().unwrap();
+                let height = props.header_height * 0.5;
+                let top: Html = dates
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, date)| *i == 0 || date.year() != dates.get(i - 1).unwrap().year())
+                    .map(|(i, date)| {
+                        let i = i as f64;
+                        // todo: customize ?
+                        let value = format!("{}", date.format("%Y"));
+                        let x_text = if props.rtl {
+                            (6.0 + i + (date.month() as f64) + 1.0) * props.column_width
+                        } else {
+                            (6.0 + i - (date.month() as f64)) * props.column_width
+                        };
+                        let x_line = props.column_width * i;
+                        top_calendar(&props, x_line, height, x_text, value)
+                    })
+                    .collect();
+
+                let bottom: Html = dates
+                    .iter()
+                    .enumerate()
+                    .map(|(i, date)| { 
+                        // todo: customize ?                    
+                        let value = format!("{}", date.format("%m"));
+                        let key = format!("{}", date.format("%m, %Y"));
+                        bottom_calendar(&props, i as f64, value, key)
+                    }).collect();
+
+                (bottom, top)
+            },
+            ViewMode::QuarterYear => {
+                let dates = props.date_setup.dates.clone().unwrap();
+                let height = props.header_height * 0.5;
+                let top: Html = dates
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, date)| *i == 0 || date.year() != dates.get(i - 1).unwrap().year())
+                    .map(|(i, date)| {
+                        let i = i as f64;
+                        // todo: customize ?
+                        let value = format!("{}", date.format("%Y"));
+                        let x_text = if props.rtl {
+                            (6.0 + i + (date.month() as f64) + 1.0) * props.column_width
+                        } else {
+                            (6.0 + i - (date.month() as f64)) * props.column_width
+                        };
+                        let x_line = props.column_width * i;
+                        top_calendar(&props, x_line, height, x_text, value)
+                    })
+                    .collect();
+
+                let bottom: Html = dates
+                    .iter()
+                    .enumerate()
+                    .map(|(i, date)| { 
+                        // todo: customize ?                    
+                        let value = format!("Q{}", ((date.month() + 3) / 3));
+                        let key = format!("{}", date.timestamp_nanos());
+                        bottom_calendar(&props, i as f64, value, key)
+                    }).collect();
+
+                (bottom, top)
+            },
+            ViewMode::Year =>  {
+                let dates = props.date_setup.dates.clone().unwrap();
+                let height = props.header_height * 0.5;
+                let top: Html = dates
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, date)| *i == 0 || date.year() != dates.get(i - 1).unwrap().year())
+                    .map(|(i, date)| {
+                        // todo: customize ?
+                        let i = i as f64;
+                        let value = format!("{}", date.format("%Y"));
+                        let x_text = if props.rtl {
+                            (6.0 + i + (date.year() as f64) + 1.0) * props.column_width
+                        } else {
+                            (6.0 + i - (date.year() as f64)) * props.column_width
+                        };
+                        let x_line = props.column_width * i;
+                        top_calendar(&props, x_line, height, x_text, value)
+                    })
+                    .collect();
+
+                let bottom: Html = dates
+                    .iter()
+                    .enumerate()
+                    .map(|(i, date)| { 
+                        // todo: customize ?                    
+                        let value = format!("{}", date.format("%Y"));
+                        let key = format!("{}", date.timestamp_nanos());
+                        bottom_calendar(&props, i as f64, value, key)
+                    }).collect();
+
+                (bottom, top)
+            },
         }
     }
 }
@@ -537,5 +725,41 @@ impl Component for SvgView {
                 </div>
             </div>
         }
+    }
+}
+
+fn bottom_calendar(props: &CalendarProps, i: f64,  value: String, key: String ) -> yew::virtual_dom::VNode {
+    html! {
+        <text
+            key={key}
+            y={(props.header_height * 0.8).to_string()}
+            x={(props.column_width * i + props.column_width * 0.5).to_string()}
+            class="calendar-bottom-text"
+        >
+            {value}
+        </text>
+    }
+}
+
+fn top_calendar(props: &CalendarProps, x_line: f64, height: f64, x_text: f64, value: String) -> yew::virtual_dom::VNode {
+    html! {
+        <g class="calendar-top">
+            <line
+                x1={x_line.to_string()}
+                y1={0}
+                x2={x_line.to_string()}
+                y2={height.to_string()}
+                class="calendar-top-tick"
+                key={format!("{}line", props.column_width)}
+            />
+            <text
+                key={format!("{}text", value)}
+                y={(height * 0.9).to_string()}
+                x={x_text.to_string()}
+                class="calendar-top-text"
+            >
+                {value}
+            </text>
+        </g>
     }
 }

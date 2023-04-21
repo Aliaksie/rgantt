@@ -512,15 +512,64 @@ pub enum ViewMode {
 impl ViewMode {
     pub fn get_mod_date(&self, date_time: NaiveDateTime, add: bool) -> NaiveDateTime {
         match self {
-            ViewMode::Day => if add { date_time.checked_add_days(chrono::Days::new(1)) } else { date_time.checked_sub_days(chrono::Days::new(1))},
-            ViewMode::HalfDay => todo!(),
-            ViewMode::Hour => todo!(),
-            ViewMode::Month =>if add { date_time.checked_add_months(chrono::Months::new(1)) } else { date_time.checked_sub_months(chrono::Months::new(1))} ,
-            ViewMode::QuarterDay => todo!(),
-            ViewMode::QuarterYear => todo!(),
-            ViewMode::Week => todo!(),
-            ViewMode::Year => todo!(),
-        }.unwrap()
+            ViewMode::Hour => {
+                if add {
+                    date_time.checked_add_signed(chrono::Duration::hours(1))
+                } else {
+                    date_time.checked_sub_signed(chrono::Duration::hours(1))
+                }
+            }
+            ViewMode::QuarterDay => {
+                if add {
+                    date_time.checked_add_signed(chrono::Duration::hours(6))
+                } else {
+                    date_time.checked_sub_signed(chrono::Duration::hours(6))
+                }
+            }
+            ViewMode::HalfDay => {
+                if add {
+                    date_time.checked_add_signed(chrono::Duration::hours(12))
+                } else {
+                    date_time.checked_sub_signed(chrono::Duration::hours(12))
+                }
+            }
+            ViewMode::Day => {
+                if add {
+                    date_time.checked_add_days(chrono::Days::new(1))
+                } else {
+                    date_time.checked_sub_days(chrono::Days::new(1))
+                }
+            }
+            ViewMode::Week => {
+                if add {
+                    date_time.checked_add_days(chrono::Days::new(7))
+                } else {
+                    date_time.checked_sub_days(chrono::Days::new(7))
+                }
+            }
+            ViewMode::Month => {
+                if add {
+                    date_time.checked_add_months(chrono::Months::new(1))
+                } else {
+                    date_time.checked_sub_months(chrono::Months::new(1))
+                }
+            }
+            ViewMode::QuarterYear => {
+                if add {
+                    date_time.checked_add_months(chrono::Months::new(3))
+                } else {
+                    date_time.checked_sub_months(chrono::Months::new(3))
+                }
+            }
+            ViewMode::Year => {
+                if add {
+                    date_time.checked_add_months(chrono::Months::new(12))
+                } else {
+                    date_time.checked_sub_months(chrono::Months::new(12))
+                }
+            }
+        }
+        .unwrap()
     }
 }
 
