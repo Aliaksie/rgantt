@@ -67,6 +67,25 @@ pub struct BarTask {
     #[serde(flatten)]
     pub task: Task,
 }
+
+impl BarTask {
+    macros::setters! {
+     bar_children: Vec<BarTask> => Some(bar_children),
+     bar_corner_radius: f64  => Some(bar_corner_radius),
+     handle_width: f64 => Some(handle_width),
+     height: f64 => Some(height),
+     index: f64 => Some(index),
+     progress_width: f64  => Some(progress_width),
+     progress_x: f64 => Some(progress_x),
+     styles: BarTaskStyles => Some(styles),
+     type_internal: TaskTypeInternal => Some(type_internal),
+     x_1: f64  => Some(x_1),
+     x_2: f64 => Some(x_2),
+     y: f64 => Some(y),
+     task: Task => task,
+    }
+}
+
 #[derive(Clone, PartialEq, Eq, Debug, Default, Deserialize, Serialize)]
 pub struct DateSetup {
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -35,8 +35,10 @@ impl Component for Gantt {
             .unwrap_or_else(|| "%Y-%m-%d %H:%M:%S".to_owned());
         let column_width = props.style_option.column_width.unwrap_or(30.0);
         let row_height = props.style_option.row_height.unwrap_or(50.0);
-        let font_family = props.style_option.font_family.clone().unwrap_or_else(|| "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue"
-                .to_owned());
+        let font_family = props.style_option.font_family.clone().unwrap_or_else(|| {
+            "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue"
+                .to_owned()
+        });
         let font_size = props
             .style_option
             .font_size
@@ -75,11 +77,7 @@ impl Component for Gantt {
             })
             .max()
             .unwrap_or_else(|| Utc::now().naive_utc());
-        let view_mode = props
-            .display_option
-            .view_mode
-            .clone()
-            .unwrap_or_default();
+        let view_mode = props.display_option.view_mode.clone().unwrap_or_default();
         // todo: ?
         let dates_: Vec<NaiveDateTime> = seed_dates(start_dates, end_dates, view_mode.clone());
 
@@ -100,7 +98,7 @@ impl Component for Gantt {
                     .style_option
                     .today_color
                     .clone()
-                    .unwrap_or_else(|| "rgba(252, 248, 227, 0.5)".to_owned())
+                    .unwrap_or_else(|| "rgba(252, 248, 227, 0.5)".to_owned()),
             );
 
         let calendar_props_ = schemas::CalendarProps::default()
@@ -113,16 +111,42 @@ impl Component for Gantt {
             .rtl(false)
             .view_mode(view_mode);
 
-        let bar_tasks: Vec<BarTask> = props
-            .tasks
-            .clone()
-            .unwrap_or_default()
+        // todo!!
+        let tasks = props.tasks.clone().unwrap_or_default();
+        let bar_tasks: Vec<BarTask> = tasks
             .iter()
             .enumerate()
             .map(|(i, it)| {
+                let childrens: Vec<BarTask> = tasks
+                    .iter()
+                    .filter_map(|el| {
+                        el.dependencies
+                            .clone()
+                            .unwrap_or_default()
+                            .iter()
+                            .find(|id| &it.id.clone().unwrap() == *id)
+                            .map(|_| el)
+                    })
+                    .map(|task| {
+                        let index = tasks
+                            .iter()
+                            .position(|el| el.id.to_owned().unwrap() == task.id.to_owned().unwrap())
+                            .unwrap();
+                        bar_task(
+                            task.clone(),
+                            fmt.clone(),
+                            &dates_,
+                            column_width,
+                            props,
+                            task_height,
+                            index,
+                            row_height,
+                        )
+                    })
+                    .collect();
+
                 bar_task(
-                    props.tasks.clone().unwrap(),
-                    it,
+                    it.clone(),
                     fmt.clone(),
                     &dates_,
                     column_width,
@@ -131,6 +155,7 @@ impl Component for Gantt {
                     i,
                     row_height,
                 )
+                .bar_children(childrens)
             })
             .collect();
         let bar_props_ = schemas::TaskGanttContentProps::default()
@@ -224,8 +249,7 @@ impl Component for Gantt {
 }
 
 fn bar_task(
-    tasks: Vec<schemas::Task>,
-    task: &schemas::Task,
+    task: schemas::Task,
     fmt: String,
     dates_: &Vec<NaiveDateTime>,
     column_width: f64,
@@ -234,42 +258,25 @@ fn bar_task(
     i: usize,
     row_height: f64,
 ) -> BarTask {
-    let t = task.clone();
     let start = NaiveDateTime::parse_from_str(&task.start.clone().unwrap(), &fmt).unwrap();
     let end = NaiveDateTime::parse_from_str(&task.end.clone().unwrap(), &fmt).unwrap();
-    let x_1 = task_x_coordinate(start, dates_.clone(), column_width);
-    let x_2 = task_x_coordinate(end, dates_.clone(), column_width);
-    let childrens: Vec<BarTask> = task
-        .dependencies
-        .clone()
-        .unwrap_or_default()
-        .iter()
-        .filter_map(|id| tasks.iter().find(|el| &el.id.clone().unwrap() == id))
-        .map(|it| {
-            bar_task(
-                tasks.clone(),
-                it,
-                fmt.clone(),
-                dates_,
-                column_width,
-                props,
-                task_height,
-                i, // todo!
-                row_height,
-            )
-        })
-        .collect();
+    let x_1 = task_x_coordinate(start, dates_.to_owned(), column_width);
+    let x_2 = task_x_coordinate(end, dates_.to_owned(), column_width);
 
-    BarTask {
-        // todo!!
-        bar_children: Some(childrens),
-        bar_corner_radius: Some(props.style_option.bar_corner_radius.unwrap_or(3.0)),
-        handle_width: Some(props.style_option.handle_width.unwrap_or(8.0)),
-        height: Some(task_height),
-        index: Some(i as f64),
-        progress_width: Some((x_2 - x_1) * task.progress.unwrap() * 0.01),
-        progress_x: Some(x_1),
-        styles: Some(schemas::BarTaskStyles {
+    BarTask::default()
+        // .bar_children(childrens)
+        .bar_corner_radius(props.style_option.bar_corner_radius.unwrap_or(3.0))
+        .handle_width(props.style_option.handle_width.unwrap_or(8.0))
+        .height(task_height)
+        .index(i as f64)
+        .progress_width((x_2 - x_1) * task.progress.unwrap() * 0.01)
+        .progress_x(x_1)
+        .type_internal(task.type_.clone().unwrap().get_internal())
+        .x_1(x_1)
+        .x_2(x_2)
+        .y((i as f64) * row_height + (row_height - task_height) / 2.0)
+        .task(task)
+        .styles(schemas::BarTaskStyles {
             background_color: Some(
                 props
                     .style_option
@@ -298,24 +305,13 @@ fn bar_task(
                     .clone()
                     .unwrap_or_else(|| "#8282f5".to_owned()),
             ),
-        }),
-        type_internal: Some(task.type_.clone().unwrap().get_internal()),
-        x_1: Some(x_1),
-        x_2: Some(x_2),
-        y: Some((i as f64) * row_height + (row_height - task_height) / 2.0),
-        task: t,
-    }
+        })
 }
 
 fn task_x_coordinate(x_date: NaiveDateTime, dates: Vec<NaiveDateTime>, column_width: f64) -> f64 {
-    log::debug!("x - {} dates {:?}", x_date, dates);
-
     let index = dates
         .iter()
-        .position(|it| {
-            log::debug!("left - {} right {:?}", it.timestamp(), x_date.timestamp());
-            it.timestamp() >= x_date.timestamp()
-        })
+        .position(|it| it.timestamp() >= x_date.timestamp())
         .unwrap()
         - 1;
 

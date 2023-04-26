@@ -624,7 +624,7 @@ impl Component for SvgView {
 
                         html! {
                             <g class="arrow">
-                                <path strokeWidth="1.5" d={path} fill="none" />
+                                <path strok-width="1.5" d={path} fill="none" />
                                 <polygon points={triangle_points} />
                             </g>
                         }
