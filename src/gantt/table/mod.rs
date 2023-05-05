@@ -18,7 +18,7 @@ impl Component for Table {
         }
     }
 
-    fn view(&self, ctx: &Context<Self>) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         let table_content: Html = self.table_props.tasks.clone().unwrap_or_default().iter()
             .map(|task|  {
                 let expander = if task.hide_children.unwrap_or(true) { "▼" } else { "▶" };   
