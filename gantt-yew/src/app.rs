@@ -1,6 +1,6 @@
 use yew::{html, Component, Context, Html};
 
-use crate::gantt::{self, schemas::Task};
+use rgantt::{self, schemas::Task};
 
 pub struct App {}
 
@@ -114,10 +114,10 @@ impl Component for App {
 
         html! {
             <>
-                <gantt::Gantt
-                        event_option = {gantt::schemas::EventOption::default()}
-                        display_option = {gantt::schemas::DisplayOption::default()}
-                        style_option = {gantt::schemas::StylingOption::default()}
+                <rgantt::Gantt
+                        event_option = {rgantt::schemas::EventOption::default()}
+                        display_option = {rgantt::schemas::DisplayOption::default()}
+                        style_option = {rgantt::schemas::StylingOption::default()}
                         tasks = {tasks_}
                 />
             </>

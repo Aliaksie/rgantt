@@ -1,4 +1,4 @@
-pub(crate) mod schemas;
+pub mod schemas;
 mod svg_view;
 mod table;
 
@@ -348,4 +348,41 @@ fn seed_dates(start: NaiveDateTime, end: NaiveDateTime, mode: ViewMode) -> Vec<N
     }
 
     dates
+}
+
+
+#[derive(Debug, yew::Properties, PartialEq)]
+pub struct Props {
+    pub task: String,
+    pub  event_option: String,
+    pub  display_option: String, 
+    pub style_option: String
+}
+
+#[yew::function_component(App)]
+fn app(props: &Props) -> Html {
+    let tasks_: Vec<schemas::Task> = serde_json::from_str(&props.task).unwrap();
+    html! {
+        <Gantt
+            event_option = {schemas::EventOption::default()}
+            display_option = {schemas::DisplayOption::default()}
+            style_option = {schemas::StylingOption::default()}
+            tasks = {tasks_}
+        />
+    }
+}
+
+#[wasm_bindgen::prelude::wasm_bindgen]
+pub fn render(selector: &str, task: &str, event_option: &str, display_option: &str, style_option: &str) {
+    let props = Props {
+        task: task.to_string(), 
+        event_option: event_option.to_string(), 
+        display_option: display_option.to_string(), 
+        style_option: style_option.to_string()
+    };
+    let window = web_sys::window().expect("no global `window` exists");
+    let document = window.document().expect("should have a document on window");
+    let element = document.query_selector(selector).expect("no element exists").unwrap();
+
+    yew::Renderer::<App>::with_root_and_props(element, props).render();
 }

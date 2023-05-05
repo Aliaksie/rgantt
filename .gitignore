@@ -2,3 +2,11 @@
 /dist
 /.idea
 Cargo.lock
+
+/gantt-yew/dist
+
+/gantt-react/node_modules
+/gantt-react/dist
+/gantt-react/build
+/gantt-react/pkg
+/gantt-react/package-lock.json
