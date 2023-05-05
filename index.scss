@@ -229,10 +229,70 @@
 // ===== end:caletooltipndar ===
 
 
-// ===== start:calendar ===
-// ===== end:calendar ===
+// ===== start:table  ===
+.gantt-table {
+    display: table;
+    border-bottom: #e6e4e4 1px solid;
+    border-top: #e6e4e4 1px solid;
+    border-left: #e6e4e4 1px solid;
+}
 
+.gantt-table-header {
+    display: table-row;
+    list-style: none;
+}
 
+.gantt-table-header-separator {
+    border-right: 1px solid rgb(196, 196, 196);
+    opacity: 1;
+    margin-left: -2px;
+}
 
-// ===== start:calendar ===
-// ===== end:calendar ===
+.gantt-table-header-item {
+    display: table-cell;
+    vertical-align: -webkit-baseline-middle;
+    vertical-align: middle;
+}
+
+.gantt-table-wrapper {
+    display: table;
+    border-bottom: #e6e4e4 1px solid;
+    border-left: #e6e4e4 1px solid;
+}
+
+.gantt-table-row {
+    display: table-row;
+    text-overflow: ellipsis;
+}
+
+.gantt-table-row:nth-of-type(even) {
+    background-color: #f5f5f5;
+}
+
+.gantt-table-cell {
+    display: table-cell;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gantt-table-name-wrapper {
+    display: flex;
+}
+
+.gantt-table-expander {
+    color: rgb(86 86 86);
+    font-size: 0.6rem;
+    padding: 0.15rem 0.2rem 0rem 0.2rem;
+    user-select: none;
+    cursor: pointer;
+}
+
+.gantt-table-empty-expander {
+    font-size: 0.6rem;
+    padding-left: 1rem;
+    user-select: none;
+}
+
+// ===== end:table ===
