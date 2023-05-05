@@ -534,38 +534,39 @@ impl Component for SvgView {
         let now = Utc::now().naive_utc();
         let mut today = html! {};
         let mut tick_x = 0.0;
-        let ticks: Html = dates.iter().enumerate().map(|(i, date)|{
-            let node = html! {
-                <line
-                    key={date.timestamp_nanos().to_string()}
-                    x1={tick_x.to_string()}
-                    y1={0}
-                    x2={tick_x.to_string()}
-                    y2={y.to_string()}
-                    class="grid-tick"
-                />
-            };
-            
-            
-            if (i + 1 != dates.len() && date.timestamp_micros() < now.timestamp_micros() && dates[i + 1].timestamp_micros() >= now.timestamp_micros()) 
-                  // if current date is last
-                || (i != 0 && i + 1 == dates.len() && date.timestamp_micros() < now.timestamp_micros() &&
-                   NaiveDateTime::from_timestamp_micros(date.timestamp_micros() - dates[i - 1].timestamp_micros()).unwrap().timestamp_micros() >= now.timestamp_micros())
-               {
-                today = html! {
-                  <rect
-                    x={tick_x.to_string()}
-                    y={0}
-                    width={grid_props.column_width.to_string()}
-                    height={y.to_string()}
-                    fill={grid_props.today_color.clone()}
-                  />
+        let ticks: Html = dates.iter().enumerate()
+            .map(|(i, date)|{
+                let node = html! {
+                    <line
+                        key={date.timestamp_nanos().to_string()}
+                        x1={tick_x.to_string()}
+                        y1={0}
+                        x2={tick_x.to_string()}
+                        y2={y.to_string()}
+                        class="grid-tick"
+                    />
                 };
-              }
+                
+                
+                if (i + 1 != dates.len() && date.timestamp_micros() < now.timestamp_micros() && dates[i + 1].timestamp_micros() >= now.timestamp_micros()) 
+                    // if current date is last
+                    || (i != 0 && i + 1 == dates.len() && date.timestamp_micros() < now.timestamp_micros() &&
+                    NaiveDateTime::from_timestamp_micros(date.timestamp_micros() - dates[i - 1].timestamp_micros()).unwrap().timestamp_micros() >= now.timestamp_micros())
+                {
+                    today = html! {
+                    <rect
+                        x={tick_x.to_string()}
+                        y={0}
+                        width={grid_props.column_width.to_string()}
+                        height={y.to_string()}
+                        fill={grid_props.today_color.clone()}
+                    />
+                    };
+                }
 
-              tick_x += grid_props.column_width;
-            node
-        }).collect();
+                tick_x += grid_props.column_width;
+                node
+            }).collect();
 
         let tasks = self.bar_props.tasks.clone();
         let arrow_tasks: Html = tasks

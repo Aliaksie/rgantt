@@ -15,6 +15,7 @@ pub struct Gantt {
     grid_props: schemas::GridProps,
     calendar_props: schemas::CalendarProps,
     bar_props: schemas::TaskGanttContentProps,
+    table_props: schemas::TableProps,
     gantt_height: f64,
     scroll_y: f64,
     scroll_x: f64,
@@ -178,13 +179,29 @@ impl Component for Gantt {
             .arrow_indent(props.style_option.arrow_indent.unwrap_or(20.0))
             .column_width(column_width)
             .rtl(false)
+            .font_family(font_family.clone())
+            .font_size(font_size.clone());
+        
+        let table_props_ = schemas::TableProps::default()
+            .tasks(tasks)
+            .row_height(row_height)
+            .row_width(props.style_option.list_cell_width.clone().unwrap_or_else(|| "155px".to_owned()))
             .font_family(font_family)
-            .font_size(font_size);
+            .font_size(font_size)
+            .locale(fmt)
+            .header_height(header_height)
+            // todo!!
+            //.scroll_y() 
+            // .selected_task_id(selected_task_id)
+            // .set_selected_task(set_selected_task)
+            // .on_expander_click(on_expander_click)
+            .gantt_height(props.style_option.gantt_height.unwrap_or(0.0));
 
         Gantt {
             grid_props: grid_props_,
             calendar_props: calendar_props_,
             bar_props: bar_props_,
+            table_props: table_props_,
             gantt_height: props.style_option.gantt_height.unwrap_or(0.0),
             scroll_y: 0.0,
             scroll_x: -1.0,
@@ -199,9 +216,9 @@ impl Component for Gantt {
                 class="wrapper"
                 // onKeyDown={handleKeyDown} TODO:!!
                 tabIndex={0}
-                ref={self.wrapper_ref.clone()}
+                ref={self.wrapper_ref.clone()}  
             >
-              <table::Table />
+              <table::Table ..self.table_props.clone() /> 
               <svg_view::SvgView
                     grid_props={self.grid_props.clone()}
                     calendar_props={self.calendar_props.clone()}

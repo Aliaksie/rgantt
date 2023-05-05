@@ -220,24 +220,45 @@ pub struct TableProps {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub locale: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "onExpanderClick")]
-    pub on_expander_click: Option<::std::collections::BTreeMap<String, serde_json::Value>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "rowHeight")]
     pub row_height: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "rowWidth")]
     pub row_width: Option<String>,
+    pub header_height: f64,
+    pub gantt_height: f64,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "selectedTaskId")]
     pub selected_task_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tasks: Option<Vec<Task>>,
+
     #[doc = " Sets selected task by id"]
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "setSelectedTask")]
     pub set_selected_task: Option<::std::collections::BTreeMap<String, serde_json::Value>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tasks: Option<Vec<Task>>,
+    #[serde(rename = "onExpanderClick")]
+    pub on_expander_click: Option<::std::collections::BTreeMap<String, serde_json::Value>>,
 }
+
+impl TableProps {
+    macros::setters! {
+        font_family: Option<String> => font_family,
+        font_size: Option<String> => font_size,
+        locale: Option<String> => locale,
+        row_height: Option<f64> => row_height,
+        row_width: Option<String> => row_width,
+        header_height: f64 => header_height,
+        gantt_height: f64 => gantt_height,
+        selected_task_id: Option<String> => selected_task_id,
+        tasks: Option<Vec<Task>> => tasks,
+        
+        on_expander_click: Option<::std::collections::BTreeMap<String, serde_json::Value>> => on_expander_click,
+        set_selected_task: Option<::std::collections::BTreeMap<String, serde_json::Value>> => set_selected_task,
+    }
+}
+
 #[derive(Clone, PartialEq, Debug, Default, Deserialize, Serialize)]
 pub struct PartialTaskTaskFontSizeStringFontFamilyString {
     #[serde(skip_serializing_if = "Option::is_none")]
